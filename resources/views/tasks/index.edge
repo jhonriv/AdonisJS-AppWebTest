@@ -1,0 +1,111 @@
+@layout('master')
+
+@section('view')
+  <nav class="navbar" role="navigation" aria-label="main navigation" style="margin-bottom: 10px;">
+    <div class="navbar-start" style="float: left;">
+      Welcome <strong> {{ user }} </strong>
+    </div>
+
+    <div class="navbar-end" style="float: right;">
+      <div class="navbar-item">
+        <form action="{{ '/logout' }}" method="GET">
+          {{ csrfField() }}
+          <button type="submit" class="button is-primary btnAction">
+            <span class="icon is-small">
+              <i class="fa fa-sign-out" aria-hidden="true"></i>
+            </span>
+            <span>Logout</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </nav>
+  <div class="box">
+    <h2 class="title">New Task</h2>
+    <form id="formAdd" action="/tasks" method="POST">
+      {{ csrfField() }}
+      <div class="field has-addons">
+        <div class="control is-expanded">
+          <input class="input" type="text" name="title" id="title" value="{{ old('title', '') }}" placeholder="Título">
+          <input type="hidden" name="titleHide">
+        </div>
+        <div class="control">
+          <button id="btnAdd" type="submit" class="button is-info btnAction">
+            <span class="icon is-small">
+              <i id="iconAdd" class="fa fa-plus" aria-hidden="true"></i>
+            </span>
+            <span id="spanAdd">Add</span>
+          </button>
+        </div>
+      </div>
+      {{ elIf('<p class="help is-danger">$self</p>', getErrorFor('title'), hasErrorFor('title')) }}
+    </form>
+  </div>
+
+  @if(old('notification'))
+    <div class="notification is-success">
+      {{ old('notification') }}
+    </div>
+  @endif
+
+  @if(old('alert'))
+    <div class="notification is-danger">
+      {{ old('alert') }}
+    </div>
+  @endif
+
+  <div class="box">
+    <h1 class="title">List of Tasks</h1>
+    <table class="table is-bordered is-striped is-narrow is-fullwidth">
+      <thead>
+        <tr>
+          <th style="width: 10%;">#</th>
+          <th>Título</th>
+          <th style="width: 30%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        @each(task in tasks)
+          <tr>
+            <td>
+              {{ ($loop.index + 1) }}
+            </td>
+            <td>
+              {{ task.title }}
+            </td>
+            <td>
+              <div class="columns">
+                <div class="positionBtn">
+                  <form action="" method="GET">
+                    {{ csrfField() }}
+                    <a class="button is-primary btnAction" onclick="return edit({{task.id}})" style="width: 90px;">
+                      <span class="icon is-small">
+                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                      </span>
+                      <span>Edit</span>
+                    </a>
+                  </form>
+                </div>
+                <div class="positionBtn">
+                  <form action="{{ 'tasks/' + task.id + '?_method=DELETE' }}" method="POST">
+                    {{ csrfField() }}
+                    <button type="submit" class="button is-danger btnAction" style="width: 90px;">
+                      <span class="icon is-small">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                      </span>
+                      <span>Delete</span>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </td>
+          </tr>
+        @else
+          <tr>
+            <td colspan="3" class="has-text-centered">¡No task created yet!</td>
+          </tr>
+        @endeach
+      </tbody>
+    </table>
+  </div>
+@endsection
